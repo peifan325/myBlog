@@ -1,0 +1,129 @@
+{extend name="public:base"}
+{block name="content"}
+<div class="container-wrap">
+    <div class="container">
+        <div class="contar-wrap">
+            <h4 class="item-title">
+                <p><i class="layui-icon layui-icon-speaker"></i>公告：<span>欢迎来到我的轻博客</span></p>
+            </h4>
+            <div class="artlist">
+                {volist name="artlist" id="art"}
+                <div class="item">
+                    <div class="item-box  layer-photos-demo1 layer-photos-demo">
+                        <h3 class="layui-text-center"><a href="details.html">{$art.title}</a></h3>
+                        <h5>
+                            发布于：<span>{$art.create_time}</span>
+                            <div class="pull-right">
+                                阅读：<em>{$art.read}</em>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <i class="layui-icon layui-icon-praise"></i>
+                                <em>{$art.like}</em>
+                            </div>
+                        </h5>
+                    </div>
+                </div>
+                {/volist}
+            </div>
+
+        </div>
+        <div id="item-page" class="item-btn"></div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<script>
+    layui.use(['laypage', 'jquery', 'form'], function () {
+        var laypage = layui.laypage
+            , $ = layui.jquery
+            , form = layui.form;
+
+        //执行一个laypage实例
+        var option = {
+            elem: 'item-page' //注意，这里的 test1 是 ID，不用加 # 号
+            , count: {$count} //数据总数，从服务端得到
+            , limit: 2  //每页显示条数
+            , jump: function (obj, first) {
+                if (!first) { 
+                    var title = $("i[lay-filter='search']").attr('key'); //获取查询条件 
+                    $.ajax({
+                        type: 'get'
+                        , url: "{:url('index/getArtList')}"
+                        , data: {curr: obj.curr, limit: obj.limit, title: title}
+                        , dataType: 'json'
+                        , success: function (res) {
+                            if (res.status == 1) {
+                                makeHtml(res);
+                            } else {
+                                $(".artlist").html("暂无数据");
+                            }
+                        }
+                    })
+                }
+            }
+        };
+
+        laypage.render(option);
+
+        //搜索
+        form.on('submit(search)', function (data) {
+            $.ajax({
+                type: 'get'
+                , url: "{:url('index/getArtList')}"
+                , data: data.field
+                , dataType: 'json'
+                , success: function (res) {
+                    if (res.status == 1) {
+                        $("i[lay-filter='search']").attr('key', data.field['title']);
+                        makeHtml(res)
+                        // 更新分页
+                        $.extend(option, {count:res.count,curr:1})
+                        laypage.render(option);
+                    } else {
+                        $(".artlist").html("暂无数据");
+                    }
+                }
+            });
+            return false;
+        });
+        $('.blog-seach').keydown(function (e) {
+            if (e.keyCode === 13) {
+                $("i[lay-filter='search']").click();
+                return false;
+            }
+        })
+
+        //搜索End
+
+        //构建 文章列表html
+        function makeHtml(res) {
+            var art = '<div class="item">'
+                + '<div class="item-box  layer-photos-demo1 layer-photos-demo">'
+                + '<h3 class="layui-text-center"><a href="details.html">{title}</a></h3>'
+                + '<h5>'
+                + '发布于：<span>{create_time}</span>'
+                + '<div class="pull-right">'
+                + '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
+                + '<i class="layui-icon layui-icon-praise"></i>'
+                + '<em>{like}</em>'
+                + '</div>'
+                + '</h5>'
+                + '</div>'
+                + '</div>';
+            //更新文章列表        
+            $(".artlist").html('');
+
+            for (let index = 0; index < res['data'].length; index++) {
+                const e = res['data'][index];
+                var el = art.replace('{title}',e.title).replace('{create_time}',e.create_time).replace('{like}',e.like).replace('{read}',e.read);
+                $(".artlist").append(el);
+            }
+
+
+        }
+
+
+
+    });
+</script>
+
+{/block}
