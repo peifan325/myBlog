@@ -12,6 +12,7 @@
                     <div class="item-box  layer-photos-demo1 layer-photos-demo">
                         <h3 class="layui-text-center"><a href="details.html">{$art.title}</a></h3>
                         <h5>
+                            作者：{$art.user.username}&nbsp;&nbsp;&nbsp;&nbsp;
                             发布于：<span>{$art.create_time}</span>
                             <div class="pull-right">
                                 阅读：<em>{$art.read}</em>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -100,6 +101,7 @@
                 + '<div class="item-box  layer-photos-demo1 layer-photos-demo">'
                 + '<h3 class="layui-text-center"><a href="details.html">{title}</a></h3>'
                 + '<h5>'
+                + '作者：{username}&nbsp;&nbsp;&nbsp;&nbsp;'
                 + '发布于：<span>{create_time}</span>'
                 + '<div class="pull-right">'
                 + '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -114,7 +116,11 @@
 
             for (let index = 0; index < res['data'].length; index++) {
                 const e = res['data'][index];
-                var el = art.replace('{title}',e.title).replace('{create_time}',e.create_time).replace('{like}',e.like).replace('{read}',e.read);
+                var el = art.replace('{title}',e.title)
+                            .replace('{create_time}',e.create_time)
+                            .replace('{like}',e.like)
+                            .replace('{read}',e.read)
+                            .replace('{username}',e.user.username);
                 $(".artlist").append(el);
             }
 

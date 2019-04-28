@@ -52,7 +52,12 @@ class Article extends Model
         }
 
         $res['count'] = $this->where($where)->count();    //数据总数
-        $res['data'] = $this->where($where)->limit(($curr-1)*$limit,$limit)->order('create_time','desc')->select();
+        $res['data'] = $this->where($where)
+                            ->limit(($curr-1)*$limit,$limit)
+                            ->order('create_time','desc')
+                            ->with(['user'=>function($query){
+                                $query->field('id,username,role');
+                            }])->select();
         if($res){
             return $res;
         }else{

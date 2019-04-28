@@ -11,7 +11,6 @@ class Index extends Base
         $data = $this->request->param();
         $res  = $artModel->getArticles($data);
 
-        
         $this->view->assign('count', $res['count']);
         $this->view->assign('artlist', $res['data']);
         $this->view->assign('title', '碎语闲言');
