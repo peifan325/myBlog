@@ -20,7 +20,7 @@ class Article extends Model
     {
         return $this->belongsTo('Cate', 'cate_id', 'id');
     }
-    public function comment()
+    public function comments()
     {
         return $this->hasMany('Comment', 'article_id', 'id');
     }
@@ -76,5 +76,34 @@ class Article extends Model
         } else {
             return [];
         }
+    }
+
+
+    public function getArt($id) 
+    {
+        return $this->withCount('comments')->get($id);
+    }
+
+    /**
+     *  Array $data: [curr=>1, limit=>5, artId=>$artId]
+     * curr: 当前页，limit：每页显示数量，artId：文章id
+     */
+    public function getComments($data)
+    {
+        if(!isset($data['artId'])){
+            return Null;
+        }
+        $artId = $data['artId'];                          //文章Id
+        $curr  = isset($data['curr'])?$data['curr']:1;   //当前页
+        $limit = isset($data['limit'])?$data['limit']:5;  //每页显示数量
+
+        $art = $this->get($artId);
+        if($art){
+            return $art->comments()
+                       ->where('status','0')
+                       ->limit(($curr-1)*$limit, $limit) 
+                       ->select();      //返回文章所有评论
+        }
+        return Null;
     }
 }

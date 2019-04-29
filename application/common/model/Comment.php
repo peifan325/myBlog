@@ -4,7 +4,7 @@ namespace app\common\model;
 
 use think\Model;
 use think\model\concern\SoftDelete;
-class User extends Model
+class Comment extends Model
 {
     use SoftDelete;
     protected $pk = 'id';
@@ -18,4 +18,6 @@ class User extends Model
     public function article(){
         return $this->belongsTo('Article', 'article_id', 'id');
     }
+
+
 }

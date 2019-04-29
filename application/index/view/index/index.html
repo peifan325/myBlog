@@ -17,7 +17,7 @@
                                 <input type="hidden" name='cateId'>
                             </h5>
                             <h3>
-                                <a href="details.html">{$art.title}</a>
+                                <a href="#" art-id="{$art.id}">{$art.title}</a>
                             </h3>
                         </div>
 
@@ -58,7 +58,6 @@
                     var   title  = $("i[lay-filter='search']").attr('key')                  //获取查询条件 
                         ,cateId  = $("i[lay-filter='search']").attr('cateId');             //获取当前分类id
 
-                        console.log({ curr: obj.curr, limit: obj.limit, title: title, cateId:cateId });
                     $.ajax({
                         type: 'get'
                         , url: "{:url('index/getArtList')}"
@@ -78,6 +77,13 @@
         };
 
         laypage.render(option);
+
+        //文章标题点击
+        $('.artlist').on('click', 'a[art-id]',function(e){
+            let id = $(this).attr('art-id');
+            $(this).attr('href',"/index.php/index/index/details/id/"+id+".html");
+            // return false;
+        })
 
         //搜索
         form.on('submit(search)', function (data) {
@@ -112,6 +118,7 @@
         //搜索End
         //cate分类搜索
         $(".artlist").on('click', '.cate-search', function (e) {
+            console.log(2222222222);
             var cateId = $(this).attr('cate-id');
             $.ajax({
                 type: 'get'
@@ -136,43 +143,41 @@
 
         //构建 文章列表html
         function makeHtml(res) {
-            var art = '<div class="item">'
-                + '<div class="item-box">'
-                + '<div class="item-title">'
-                + '<h5 cate-id="{cateid}" class="pull-right cate-search" style="line-height:36px;cursor:pointer">'
-                + '<i class="layui-icon layui-icon-note"></i> <span>{catename}</span>'
-                + '</h5>'
-                + '<h3><a href="details.html">{title}</a></h3>'
-                + '</div>'
+                let text = '<div class="item">'
+                    + '<div class="item-box">'
+                    + '<div class="item-title">'
+                    + '<h5 cate-id="{cateid}" class="pull-right cate-search" style="line-height:36px;cursor:pointer">'
+                    + '<i class="layui-icon layui-icon-note"></i> <span>{catename}</span>'
+                    + '</h5>'
+                    + '<h3><a href="#" art-id="{href}">{title}</a></h3>'
+                    + '</div>'
 
-                + '<h5>'
-                + '作者：{username}&nbsp;&nbsp;&nbsp;&nbsp;'
-                + '发布于：<span>{create_time}</span>'
-                + '<div class="pull-right">'
-                + '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
-                + '<i class="layui-icon layui-icon-praise"></i> <em>{like}</em>'
-                + '</div>'
-                + '</h5>'
-                + '</div>'
-                + '</div>';
-            //更新文章列表        
-            $(".artlist").html('');
+                    + '<h5>'
+                    + '作者：{username}&nbsp;&nbsp;&nbsp;&nbsp;'
+                    + '发布于：<span>{create_time}</span>'
+                    + '<div class="pull-right">'
+                    + '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
+                    + '<i class="layui-icon layui-icon-praise"></i> <em>{like}</em>'
+                    + '</div>'
+                    + '</h5>'
+                    + '</div>'
+                    + '</div>';
+                //更新文章列表        
+                $(".artlist").html('');
 
-            for (let index = 0; index < res['data'].length; index++) {
-                const e = res['data'][index];
-                var el = art.replace('{title}', e.title)
-                    .replace('{create_time}', e.create_time)
-                    .replace('{like}', e.like)
-                    .replace('{read}', e.read)
-                    .replace('{username}', e.user.username)
-                    .replace('{cateid}', e.cate.id)
-                    .replace('{catename}', e.cate.name);
-                $(".artlist").append(el);
+                for (let index = 0; index < res['data'].length; index++) {
+                    let article = res['data'][index];
+                    let el = text.replace('{title}', article.title)
+                        .replace('{create_time}', article.create_time)
+                        .replace('{like}', article.like)
+                        .replace('{read}', article.read)
+                        .replace('{username}', article.user.username)
+                        .replace('{cateid}', article.cate.id)
+                        .replace('{catename}', article.cate.name)
+                        .replace('{href}', article.id);
+                    $(".artlist").append(el);
+                }
             }
-
-
-        }
-
 
 
     });
