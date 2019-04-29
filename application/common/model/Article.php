@@ -26,41 +26,53 @@ class Article extends Model
     }
 
 
+
     /**
      * 获取文章列表
      * $data   {curr:1,'limit':5,'title':'xxx'} 有搜索 有分页,
      *         {curr:1,'limit':5,'title':''}
      *         {title:'xxx'} 只有搜索
+     *          {cateId: 1}  只有分类
      *         {curr:1,'limit':5} 只有分页
+
      *         {}   //首次访问
      * return  []
      */
 
-    public function getArticles($data)
+    public function getArtList($data)
     {
-        $res = [];
         $curr  = isset($data['curr'])?$data['curr']:1;   //当前页
         $limit = isset($data['limit'])?$data['limit']:2;  //每页显示数量
+
         $where = [
-            ['status', '=', '0']
+            ['status', '<>', 1]   //文章状态
         ];
         
+        if(isset($data['cateId'])) {
+            $where[] = ['cate_id', '=', $data['cateId']]; 
+        }
         if (isset($data['title'])) {
             if (is_string($data['title']) && $data['title'] !== "") {
                 $where[] = ['title','like', '%'.$data['title'].'%'];
             }
         }
 
-        $res['count'] = $this->where($where)->count();    //数据总数
-        $res['data'] = $this->where($where)
-                            ->limit(($curr-1)*$limit,$limit)
-                            ->order('create_time','desc')
-                            ->with(['user'=>function($query){
-                                $query->field('id,username,role');
-                            }])->select();
-        if($res){
+        $res = [];
+        // $res['where'] = $where;
+        $res['count'] = $this->where([$where])->count();    //数据总数   
+        $res['data'] = $this->where([$where])
+                            ->limit(($curr-1)*$limit, $limit)
+                            ->order('create_time', 'desc')
+                            ->with(['user'=>function ($query) {
+                                $query->field('id,username');
+                            },'cate'=>function ($query) {
+                                $query->field('id,name');
+                            }])
+                            ->select();
+                         
+        if ($res['data']) {
             return $res;
-        }else{
+        } else {
             return [];
         }
     }

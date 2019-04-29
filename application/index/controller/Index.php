@@ -9,8 +9,9 @@ class Index extends Base
     public function index(Article $artModel)
     {
         $data = $this->request->param();
-        $res  = $artModel->getArticles($data);
+        $res  = $artModel->getArtList($data);
 
+        // halt($res);
         $this->view->assign('count', $res['count']);
         $this->view->assign('artlist', $res['data']);
         $this->view->assign('title', '碎语闲言');
@@ -20,14 +21,16 @@ class Index extends Base
     //ajax 请求获取文章数据
     public function getArtList(Article $artModel)
     {
-        
         $data = $this->request->param();
-        
-        $res  = $artModel->getArticles($data);
+        $res  = $artModel->getArtList($data);
+
         $status = empty($res)?0:1;//0失败  1成功
 
         return ['status'=>$status, 'count'=>$res['count'], 'data'=>$res['data']];
-     }
+    }
+
+
+
     public function message()
     {
         $this->view->assign('title', '碎语闲言-留言板');
