@@ -30,6 +30,7 @@ class Article extends Model
     /**
      * 获取文章列表
      * $data   {curr:1,'limit':5,'title':'xxx'} 有搜索 有分页,
+     *         {curr:1,'limit':5,'cateId':'xxx'} 有分类 有分页,
      *         {curr:1,'limit':5,'title':''}
      *         {title:'xxx'} 只有搜索
      *          {cateId: 1}  只有分类
@@ -58,7 +59,7 @@ class Article extends Model
         }
 
         $res = [];
-        // $res['where'] = $where;
+        $res['where'] = $where;
         $res['count'] = $this->where([$where])->count();    //数据总数   
         $res['data'] = $this->where([$where])
                             ->limit(($curr-1)*$limit, $limit)

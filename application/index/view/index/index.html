@@ -14,6 +14,7 @@
                             <h5 cate-id="{$art.cate.id}" class="pull-right cate-search"
                                 style="line-height:36px;cursor:pointer">
                                 <i class="layui-icon layui-icon-note"></i> <span>{$art.cate.name}</span>
+                                <input type="hidden" name='cateId'>
                             </h5>
                             <h3>
                                 <a href="details.html">{$art.title}</a>
@@ -54,13 +55,17 @@
             , limit: 2  //每页显示条数
             , jump: function (obj, first) {
                 if (!first) {
-                    var title = $("i[lay-filter='search']").attr('key'); //获取查询条件 
+                    var   title  = $("i[lay-filter='search']").attr('key')                  //获取查询条件 
+                        ,cateId  = $("i[lay-filter='search']").attr('cateId');             //获取当前分类id
+
+                        console.log({ curr: obj.curr, limit: obj.limit, title: title, cateId:cateId });
                     $.ajax({
                         type: 'get'
                         , url: "{:url('index/getArtList')}"
-                        , data: { curr: obj.curr, limit: obj.limit, title: title }
+                        , data: { curr: obj.curr, limit: obj.limit, title: title, cateId:cateId }
                         , dataType: 'json'
                         , success: function (res) {
+                            console.log(res.where);
                             if (res.status == 1) {
                                 makeHtml(res);
                             } else {
@@ -76,6 +81,8 @@
 
         //搜索
         form.on('submit(search)', function (data) {
+            $("i[lay-filter='search']").removeAttr('cateId')              //搜索前 删除 分类 避免分页带有分类信息
+
             $.ajax({
                 type: 'get'
                 , url: "{:url('index/getArtList')}"
@@ -106,7 +113,6 @@
         //cate分类搜索
         $(".artlist").on('click', '.cate-search', function (e) {
             var cateId = $(this).attr('cate-id');
-            console.log(cateId);
             $.ajax({
                 type: 'get'
                 , url: "{:url('index/getArtList')}"
@@ -114,6 +120,7 @@
                 , dataType: 'json'
                 , success: function (res) {
                     if (res.status == 1) {
+                        $("i[lay-filter='search']").attr('cateId', cateId); //保存 cateId
                         makeHtml(res)
                         // 更新分页
                         $.extend(option, { count: res.count, curr: 1 })

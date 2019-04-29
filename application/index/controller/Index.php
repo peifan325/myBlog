@@ -26,7 +26,7 @@ class Index extends Base
 
         $status = empty($res)?0:1;//0失败  1成功
 
-        return ['status'=>$status, 'count'=>$res['count'], 'data'=>$res['data']];
+        return ['status'=>$status, 'count'=>$res['count'], 'data'=>$res['data'], 'where'=>$res['where']];
     }
 
 
