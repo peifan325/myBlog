@@ -21,13 +21,14 @@
                             </h3>
                         </div>
 
-                        <h5>
+                        <h5 class="count layui-clear">
                             作者：{$art.user.username}&nbsp;&nbsp;&nbsp;&nbsp;
                             发布于：<span>{$art.create_time}</span>
                             <div class="pull-right">
                                 阅读：<em>{$art.read}</em>&nbsp;&nbsp;&nbsp;&nbsp;
-                                <i class="layui-icon layui-icon-praise"></i>
-                                <em>{$art.like}</em>
+                                <span class="like">
+                                    <i class="layui-icon layui-icon-praise"></i><em>{$art.like}</em>
+                                </span>
                             </div>
                         </h5>
                     </div>
@@ -64,7 +65,6 @@
                         , data: { curr: obj.curr, limit: obj.limit, title: title, cateId:cateId }
                         , dataType: 'json'
                         , success: function (res) {
-                            console.log(res.where);
                             if (res.status == 1) {
                                 makeHtml(res);
                             } else {
@@ -75,13 +75,12 @@
                 }
             }
         };
-
         laypage.render(option);
 
         //文章标题点击
         $('.artlist').on('click', 'a[art-id]',function(e){
             let id = $(this).attr('art-id');
-            $(this).attr('href',"/index.php/index/index/details/id/"+id+".html");
+            $(this).attr('href',"/index.php/index/details/details/id/"+id+".html");
             // return false;
         })
 
@@ -114,11 +113,10 @@
                 return false;
             }
         })
-
         //搜索End
+
         //cate分类搜索
         $(".artlist").on('click', '.cate-search', function (e) {
-            console.log(2222222222);
             var cateId = $(this).attr('cate-id');
             $.ajax({
                 type: 'get'
@@ -151,15 +149,16 @@
                     + '</h5>'
                     + '<h3><a href="#" art-id="{href}">{title}</a></h3>'
                     + '</div>'
-
-                    + '<h5>'
-                    + '作者：{username}&nbsp;&nbsp;&nbsp;&nbsp;'
-                    + '发布于：<span>{create_time}</span>'
-                    + '<div class="pull-right">'
-                    + '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
-                    + '<i class="layui-icon layui-icon-praise"></i> <em>{like}</em>'
-                    + '</div>'
-                    + '</h5>'
+                    + '<h5 class="count layui-clear">'
+                    +        '作者：{username}&nbsp;&nbsp;&nbsp;&nbsp;'
+                    +        '发布于：<span>{create_time}</span>'
+                    +        '<div class="pull-right">'
+                    +            '阅读：<em>{read}</em>&nbsp;&nbsp;&nbsp;&nbsp;'
+                    +            '<span class="like">'
+                    +                '<i class="layui-icon layui-icon-praise"></i><em>{like}</em>'
+                    +            '</span>'
+                    +        '</div>'
+                    +    '</h5>'
                     + '</div>'
                     + '</div>';
                 //更新文章列表        

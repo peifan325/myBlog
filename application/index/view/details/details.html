@@ -1,0 +1,103 @@
+{extend name="public:base"}
+{block name="content"}
+<div class="container-wrap">
+		<div class="container container-message container-details">
+				<div class="contar-wrap">
+					<div class="item">
+						<div class="item-box">
+							<h3><a href="{:url('details/details', ['id'=>$art.id])}">{$art.title}</a></h3>
+							<h5>发布于：<span>{$art.create_time}</span></h5>
+							<p>{$art.content}</p>
+							<img src="/static/static/images/item.png" alt="">
+							<div class="count layui-clear">
+								<span class="pull-left">阅读 <em>{$art.read}</em></span>
+								<span class="pull-right like"><i class="layui-icon layui-icon-praise"></i><em>{$art.like}</em></span>
+							</div>
+						</div>
+					</div>	
+					<a name="comment"> </a>
+					<div class="comt layui-clear">
+						<a href="javascript:;" class="pull-left">评论</a>
+						<a href="comment.html" class="pull-right">写评论</a>
+					</div>
+					<div id="LAY-msg-box">
+							
+						{volist name="comments" id="com" length="5"}
+						<div class="info-item">
+							<img class="info-img" src="{$com.userimg|default='/static/static/images/info-img.png'}" alt="">
+							<div class="info-text">
+								<p class="title count">
+									<span class="name">{$com.username}</span>
+									<span class="info-img like">
+										<i class="layui-icon layui-icon-praise"></i><em>{$com.like}</em></span>
+								</p>
+								<p class="info-intr">{$com.content}</p>
+							</div>
+						</div>	
+						{/volist}	
+					</div>
+					<div style="text-align:center">
+						<div id="item-page"></div>
+					</div>
+				</div>
+		</div>
+			
+	</div>
+
+{/block}
+
+{block name="js"}
+<script>
+		layui.use(['laypage', 'jquery'], function(){
+			var laypage = layui.laypage
+					, $ = layui.jquery;
+
+			//获取所有评论
+			var comments={$comments|json_encode=true|raw};
+			// console.log(comments);
+			//执行一个laypage实例
+			laypage.render({
+				elem: 'item-page' //注意，这里的 test1 是 ID，不用加 # 号
+				,count: {$count} //数据总数，从服务端得到
+				,limit: 5
+				,jump: function(obj,first){
+					if(!first){
+						let start = (obj.curr-1)*obj.limit
+							, end = start+obj.limit;
+
+						let comms = comments.slice(start, end);
+						makeComListHtml(comms);
+					}
+				}
+			});
+
+			function makeComListHtml(comms){
+				let temp ='<div class="info-item">'
+							+'<img class="info-img" src={userimg} alt="">'
+							+'<div class="info-text">'
+								+'<p class="title count">'
+									+'<span class="name">{username}</span>'
+									+'<span class="info-img like"><i class="layui-icon layui-icon-praise"></i><em>{like}</em></span>'
+								+'</p>'
+								+'<p class="info-intr">[content]</p>'
+							+'</div>'
+						+'</div>';
+
+				$("#LAY-msg-box").html('');
+				comms.forEach(element => {
+					console.log(element.content);
+					let html = temp.replace('{userimg}', element.userimg)
+						.replace('{username}', element.username)
+						.replace('{like}', element.like)
+						.replace('[content]', element.content);
+
+						$("#LAY-msg-box").append(html);
+				});
+
+			}
+			
+
+
+		})
+</script>
+{/block}

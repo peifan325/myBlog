@@ -24,4 +24,5 @@ class User extends Model
     {
         return $this->hasMany('Comment', 'user_id', 'id');
     }
+
 }

@@ -49,8 +49,8 @@ class Article extends Model
             ['status', '<>', 1]   //文章状态
         ];
         
-        if(isset($data['cateId'])) {
-            $where[] = ['cate_id', '=', $data['cateId']]; 
+        if (isset($data['cateId'])) {
+            $where[] = ['cate_id', '=', $data['cateId']];
         }
         if (isset($data['title'])) {
             if (is_string($data['title']) && $data['title'] !== "") {
@@ -60,7 +60,7 @@ class Article extends Model
 
         $res = [];
         $res['where'] = $where;
-        $res['count'] = $this->where([$where])->count();    //数据总数   
+        $res['count'] = $this->where([$where])->count();    //数据总数
         $res['data'] = $this->where([$where])
                             ->limit(($curr-1)*$limit, $limit)
                             ->order('create_time', 'desc')
@@ -79,31 +79,20 @@ class Article extends Model
     }
 
 
-    public function getArt($id) 
+    public function getArt($id)
     {
         return $this->withCount('comments')->get($id);
     }
 
-    /**
-     *  Array $data: [curr=>1, limit=>5, artId=>$artId]
-     * curr: 当前页，limit：每页显示数量，artId：文章id
-     */
-    public function getComments($data)
-    {
-        if(!isset($data['artId'])){
-            return Null;
-        }
-        $artId = $data['artId'];                          //文章Id
-        $curr  = isset($data['curr'])?$data['curr']:1;   //当前页
-        $limit = isset($data['limit'])?$data['limit']:5;  //每页显示数量
 
-        $art = $this->get($artId);
-        if($art){
-            return $art->comments()
-                       ->where('status','0')
-                       ->limit(($curr-1)*$limit, $limit) 
-                       ->select();      //返回文章所有评论
+    public function getComments($id)
+    {
+        $art = $this->getArt($id);
+        if ($art) {
+            return $art->comments()->select(function ($query) {
+                $query->with('user')->where('status', 0);
+            });      //返回文章所有评论
         }
-        return Null;
+        return null;
     }
 }
