@@ -90,7 +90,7 @@ class Article extends Model
         $art = $this->getArt($id);
         if ($art) {
             return $art->comments()->select(function ($query) {
-                $query->with('user')->where('status', 0);
+                $query->with('user')->where('status', 0)->order('create_time', 'desc');
             });      //返回文章所有评论
         }
         return null;

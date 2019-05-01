@@ -1,34 +1,104 @@
 {extend name="public:base"}
 {block name="content"}
 <div class="container-wrap">
-        <div class="container container-message">
-            <div class="contar-wrap" id="contar-wrap">
-                <form class="layui-form" action="">
-                    <div class="layui-form-item layui-form-text">
-                          <textarea  class="layui-textarea" id="LAY-msg-content" style="resize:none"></textarea>
-                    </div>
-                </form>
+    <div class="container container-message">
+        <div class="contar-wrap" id="contar-wrap">
+            <div class="layui-form">
+                <div class="layui-form-item layui-form-text">
+                    <textarea class="layui-textarea" id="LAY-msg-content" the-type="msg"
+                        style="resize:none" placeholder="写点什么"></textarea>
+                </div>
                 <div class="item-btn">
                     <button class="layui-btn layui-btn-normal" id="item-btn">提交</button>
                 </div>
-                
-                <div id="LAY-msg-box">
-                    <div class="info-box">
-                        <div class="info-item">
-                            <img class="info-img" src="../res/static/images/info-img.png" alt="">
-                            <div class="info-text">
-                                <p class="title count">
-                                    <span class="name">一片空白</span>
-                                    <span class="info-img like"><i class="layui-icon layui-icon-praise"></i>5.8万</span>
-                                </p>
-                                <p class="info-intr">父爱如山，不善表达。回想十多年前，总记得父亲有个宽厚的肩膀，小小的自己跨坐在上面，越过人山人海去看更广阔的天空，那个时候期望自己有一双翅膀，能够像鸟儿一样飞得高，看得远。虽然父亲有时会和自己开玩笑，但在做错事的时候会受到严厉的训斥。父亲有双粗糙的大手掌。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
-                <div id="test1" class="paging"></div>
+            <div id="LAY-msg-box">
+
+            </div>
+
+            <div style="text-align:center">
+                <div id="item-page"></div>
             </div>
         </div>
     </div>
+</div>
+{/block}
+
+{block name="js"}
+
+<script>
+    layui.use(['laypage', 'jquery', 'form', 'laytpl'], function () {
+        var laypage = layui.laypage
+            , $ = layui.jquery
+            , form = layui.form
+            , laytpl = layui.laytpl;
+
+
+        //评论分页  start
+        //获取所有留言
+        var msgs = {$msgs|json_encode=true|raw};
+
+        renderPage(msgs, 'msg');
+        //评论分页 end
+            
+
+
+
+
+
+
+
+        //---------------------------------------------------------以下函数和 文章列表的 一样
+        //留言或评论数据 渲染到页面 并 生成分页
+        //arr : 数据   type: 'msg':留言  'com'：评论
+        function renderPage(arr, type) {
+            var limit = 5 //每页显示数量
+            // console.log(comments);
+            if (arr.length == 0) {
+                $('#LAY-msg-content').attr('placeholder', "还不来抢沙发？");
+            } else {
+                //执行一个laypage实例
+                laypage.render({
+                    elem: 'item-page'
+                    , count: arr.length //数据总数，从服务端得到
+                    , limit: limit
+                    , jump: function (obj, first) {
+                        // if(!first){
+                        let start = (obj.curr - 1) * obj.limit
+                            , end = start + obj.limit;
+
+                        let comms = arr.slice(start, end);
+                        makeComListHtml(comms, type);
+                        // }
+                    }
+
+                });
+            }
+        }
+
+        function makeComListHtml(comms, type){
+            let view = $('#LAY-msg-tpl').html();
+
+            $("#LAY-msg-box").html('');
+            comms.forEach(ele => {
+                //数据
+                data = {
+                    type: type
+                    ,id:ele.id                        //comments  id
+                    ,username: ele.username
+                    ,avatar: ele.userimg
+                    ,praise: ele.like
+                    ,content: ele.content
+                };
+                //模板渲染
+                laytpl(view).render(data, function(html){
+                    $('#LAY-msg-box').append(html);
+                });
+
+            });	
+        }
+
+		})
+</script>
 {/block}

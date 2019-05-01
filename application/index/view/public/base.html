@@ -2,6 +2,7 @@
 <html lang="en">
 
 {block name="head"}
+
 <head>
     <meta charset="UTF-8">
     <title>{$title|default="闲言博客"}</title>
@@ -31,9 +32,12 @@
             </form>
             <div class="blog-nav pull-right">
                 <ul class="layui-nav pull-left">
-                    <li class="layui-nav-item {eq name='nav_item' value='1'} layui-this {/eq} "><a href="{:url('index/index')}">首页</a></li>
-                    <li class="layui-nav-item {eq name='nav_item' value='2'} layui-this {/eq} "><a href="{:url('message/message')}">留言</a></li>
-                    <li class="layui-nav-item {eq name='nav_item' value='3'} layui-this {/eq} "><a href="{:url('about/about')}">关于</a></li>
+                    <li class="layui-nav-item {eq name='nav_item' value='1'} layui-this {/eq} "><a
+                            href="{:url('index/index')}">首页</a></li>
+                    <li class="layui-nav-item {eq name='nav_item' value='2'} layui-this {/eq} "><a
+                            href="{:url('message/message')}">留言</a></li>
+                    <li class="layui-nav-item {eq name='nav_item' value='3'} layui-this {/eq} "><a
+                            href="{:url('about/about')}">关于</a></li>
                 </ul>
                 <a href="#" class="personal pull-left">
                     <i class="layui-icon layui-icon-username"></i>
@@ -66,14 +70,137 @@
     </div>
     {/block}
     {load href="/static/lib/layui/layui.js"}
+    <script id="LAY-msg-tpl" type="text/html">
+        <!-- 评论列表 留言列表公用模板 -->
+        <div class="info-box">
+            <div class="info-item">
+                <img class="info-img" src="{{ d.avatar }}" alt="">
+                <div class="info-text">
+                    <p class="title count">
+                        <span class="name">{{ d.username }}</span>
+                        <span class="info-img like" the-id="{{ d.id }}" the-type="{{ d.type }}">
+                        <i class="layui-icon layui-icon-praise"></i>
+                        <em>{{ d.praise }}</em>
+                        </span>
+                    </p>
+                    <p class="info-intr">
+                        {{ d.content }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </script>
     
+
+
+
     <script>
         layui.config({
             base: '/static/static/js/'
-        }).use('blog');	
+        }).use('blog');
+
+        layui.use(['jquery', 'laytpl'], function () {
+            var $   = layui.jquery
+            ,laytpl = layui.laytpl;
+
+            //start ------------------------------------------------------- 点赞事件处理
+            $(".container").on('click', '.like', function () {
+                if (!($(this).hasClass("layblog-this"))) {
+                    let the_type = $(this).attr('the-type'),
+                        the_id = $(this).attr('the-id');            //点谁，就谁的id
+                    this.text = '已赞';
+                    $(this).addClass('layblog-this');
+                    $.tipsBox({
+                        obj: $(this),
+                        str: "+1",
+                        callback: function () {
+                            saveLike({ type: the_type, id: the_id })//点赞 写入数据库
+                        }
+                    });
+                    $(this).find('em').text(parseInt($(this).text()) + 1);
+                    niceIn($(this));
+                }
+            });
+
+
+            //点赞 写入数据库
+            function saveLike(data) {
+                $.ajax({
+                    type: 'get'
+                    , url: "{:url('index/saveLike')}"
+                    , data: data
+                    , dataType: 'json'
+                    , success: function (data) {
+                        console.log(data);
+                    }
+                    , beforeSend: function () { }
+                    , complete: function () { }
+                })
+            }
+            function niceIn(prop) {
+                prop.find('i').addClass('niceIn');
+                setTimeout(function () {
+                    prop.find('i').removeClass('niceIn');
+                }, 1000);
+            }
+            //点赞 end
+
+
+            //start--------------------------------------------------------- 评论/留言 提交
+            $('#item-btn').on('click', function () {
+                var elemCont = $('#LAY-msg-content')
+                    , the_type = elemCont.attr('the-type') // 'com', 'msg'
+                    , artid   = elemCont.attr('the-id') //评论需要 article_id    留言不需要 提交id
+                    , content = elemCont.val();
+
+                if (content.replace(/\s/g, '') == "") {
+                    layer.msg('请先输入留言');
+                    return elemCont.focus();
+                }
+
+                //生成数据
+                var data = {
+                    type: the_type
+                    , artid: artid             //
+                    , userid: 1               //当前已登录用户id
+
+                    , username: '闲心'
+                    , avatar: '/static/static/images/info-img.png'
+                    , praise: 0
+                    , content: content
+                };
+                //写入数据库
+                $.ajax({
+                    type: 'get'
+                    , url: "{:url('index/saveMsg')}"
+                    , data: data
+                    , dataType: 'json'
+                    , success: function (id) {
+                        
+                        $.extend(data,{id, id})//新增评论/留言 id
+                        //模板渲染
+                        var view = $('#LAY-msg-tpl').html()
+                        laytpl(view).render(data, function (html) {
+                            $('#LAY-msg-box').prepend(html);
+                            elemCont.val('');
+                            layer.msg('留言成功', {
+                                icon: 1
+                            })
+                        });
+                    }
+                    , beforeSend: function () { }
+                    , complete: function () { }
+                })
+
+            })
+            //end 评论/留言
+
+
+        })
+
     </script>
     {block name="js"}
-    
+
     {/block}
 
 </body>

@@ -1,7 +1,7 @@
 {extend name="public:base"}
 {block name="content"}
 <div class="container-wrap">
-		<div class="container container-message container-details">
+		<div class="container container-message container-details container-comment">
 				<div class="contar-wrap">
 					<div class="item">
 						<div class="item-box">
@@ -11,30 +11,22 @@
 							<img src="/static/static/images/item.png" alt="">
 							<div class="count layui-clear">
 								<span class="pull-left">阅读 <em>{$art.read}</em></span>
-								<span class="pull-right like"><i class="layui-icon layui-icon-praise"></i><em>{$art.like}</em></span>
+								<span class="pull-right like" the-id="{$art.id}" the-type="art"><i class="layui-icon layui-icon-praise"></i><em>{$art.like}</em></span>
 							</div>
 						</div>
 					</div>	
 					<a name="comment"> </a>
-					<div class="comt layui-clear">
-						<a href="javascript:;" class="pull-left">评论</a>
-						<a href="comment.html" class="pull-right">写评论</a>
+					<div class="layui-form">
+						<div class="layui-form-item layui-form-text">
+							<textarea  class="layui-textarea" id="LAY-msg-content" the-type="com" the-id="{$art.id}" style="resize:none" placeholder="写点什么"></textarea>
+						</div>
+						<div class="btnbox">
+							<button class="layui-btn layui-btn-normal" id="item-btn">提交</button>
+						</div>
 					</div>
+
 					<div id="LAY-msg-box">
-							
-						{volist name="comments" id="com" length="5"}
-						<div class="info-item">
-							<img class="info-img" src="{$com.userimg|default='/static/static/images/info-img.png'}" alt="">
-							<div class="info-text">
-								<p class="title count">
-									<span class="name">{$com.username}</span>
-									<span class="info-img like">
-										<i class="layui-icon layui-icon-praise"></i><em>{$com.like}</em></span>
-								</p>
-								<p class="info-intr">{$com.content}</p>
-							</div>
-						</div>	
-						{/volist}	
+
 					</div>
 					<div style="text-align:center">
 						<div id="item-page"></div>
@@ -48,55 +40,72 @@
 
 {block name="js"}
 <script>
-		layui.use(['laypage', 'jquery'], function(){
+		layui.use(['laypage', 'jquery','form', 'laytpl'], function(){
 			var laypage = layui.laypage
-					, $ = layui.jquery;
+					, $ = layui.jquery
+				  ,form = layui.form
+				  ,laytpl = layui.laytpl;
 
+
+			//评论分页  start
 			//获取所有评论
 			var comments={$comments|json_encode=true|raw};
-			// console.log(comments);
-			//执行一个laypage实例
-			laypage.render({
-				elem: 'item-page' //注意，这里的 test1 是 ID，不用加 # 号
-				,count: {$count} //数据总数，从服务端得到
-				,limit: 5
-				,jump: function(obj,first){
-					if(!first){
-						let start = (obj.curr-1)*obj.limit
-							, end = start+obj.limit;
+			renderPage(comments,'com');
 
-						let comms = comments.slice(start, end);
-						makeComListHtml(comms);
-					}
+
+
+
+
+			//---------------------------------------------------------以下函数和 留言列表的 一样
+			//留言或评论数据 渲染到页面 并 生成分页
+			//arr : 数据   type: 'msg':留言  'com'：评论
+			function renderPage(arr, type) {
+				var limit = 5 //每页显示数量
+				// console.log(comments);
+				if (arr.length == 0) {
+					$('#LAY-msg-content').attr('placeholder', "还不来抢沙发？");
+				} else {
+					//执行一个laypage实例
+					laypage.render({
+						elem: 'item-page'
+						, count: arr.length //数据总数，从服务端得到
+						, limit: limit
+						, jump: function (obj, first) {
+							// if(!first){
+							let start = (obj.curr - 1) * obj.limit
+								, end = start + obj.limit;
+
+							let comms = arr.slice(start, end);
+							makeComListHtml(comms, type);
+							// }
+						}
+
+					});
 				}
-			});
+			}
 
-			function makeComListHtml(comms){
-				let temp ='<div class="info-item">'
-							+'<img class="info-img" src={userimg} alt="">'
-							+'<div class="info-text">'
-								+'<p class="title count">'
-									+'<span class="name">{username}</span>'
-									+'<span class="info-img like"><i class="layui-icon layui-icon-praise"></i><em>{like}</em></span>'
-								+'</p>'
-								+'<p class="info-intr">[content]</p>'
-							+'</div>'
-						+'</div>';
+			function makeComListHtml(comms, type){
+				let view = $('#LAY-msg-tpl').html();
 
 				$("#LAY-msg-box").html('');
-				comms.forEach(element => {
-					console.log(element.content);
-					let html = temp.replace('{userimg}', element.userimg)
-						.replace('{username}', element.username)
-						.replace('{like}', element.like)
-						.replace('[content]', element.content);
+				comms.forEach(ele => {
+					//数据
+					data = {
+						type: type
+						,id:ele.id                        //comments  id
+						,username: ele.username
+						,avatar: ele.userimg
+						,praise: ele.like
+						,content: ele.content
+					};
+					//模板渲染
+					laytpl(view).render(data, function(html){
+						$('#LAY-msg-box').append(html);
+					});
 
-						$("#LAY-msg-box").append(html);
-				});
-
+				});	
 			}
-			
-
+			//评论分页 end
 
 		})
 </script>

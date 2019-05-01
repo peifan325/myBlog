@@ -53,6 +53,8 @@ class Details extends Base
         $temp = [];
 
         foreach ($comments as $key => $value) {
+            $temp['id'] = $value['id'];
+            $temp['userid'] = $value['user']['id'];
             $temp['username'] = $value['user']['username'];
             $temp['userimg'] = $value['user']['img']?:'/static/static/images/info-img.png';
             $temp['content'] = $value['content'];
@@ -61,7 +63,7 @@ class Details extends Base
             $res[] = $temp;
         }
         return $res;
-        // return 
+        // return
         // return $comments->append(['user.xx'])->toArray();
     }
 }
