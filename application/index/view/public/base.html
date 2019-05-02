@@ -42,7 +42,7 @@
                         {if $Think.session.user_info}
                         <a href=""><img src="{$Think.session.user_info.img}" class="layui-nav-img">{$Think.session.user_info.name}</a>
                         <dl class="layui-nav-child">
-                            <dd><a href="{:url('index/createArticle')}">发布文章</a></dd>
+                            <dd><a href="{:url('article/create')}">发布文章</a></dd>
                             <dd><a href="javascript:;">修改信息</a></dd>
                             <dd><a href="{:url('user/loginOut')}">退了</a></dd>
                         </dl>
@@ -83,7 +83,10 @@
         <p><span>人生就是一场修行</span></p>
     </div>
     {/block}
+
     {load href="/static/lib/layui/layui.js"}
+
+    {block name='publicJs'}
     <script id="LAY-msg-tpl" type="text/html">
         <!-- 评论列表 留言列表公用模板 -->
         <div class="info-box">
@@ -118,7 +121,7 @@
             ,laytpl = layui.laytpl
             ,layer  = layui.layer;
 
-            //start-------------------------------------------------------打开用户登录
+            //start-------------------------------------------------------打开用户登录/注册
             $('#login').on('click', function(e){
                 layer.open({
                     type:2
@@ -143,13 +146,6 @@
 
                 return false;
             })
-
-
-
-
-
-
-
             //start ------------------------------------------------------- 点赞事件处理
             $(".container").on('click', '.like', function () {
                 if (!($(this).hasClass("layblog-this"))) {
@@ -191,7 +187,6 @@
                 }, 1000);
             }
             //点赞 end
-
 
             //start--------------------------------------------------------- 评论/留言 提交
             $('#item-btn').on('click', function () {
@@ -241,11 +236,10 @@
 
             })
             //end 评论/留言
-
-
         })
-
     </script>
+    {/block}
+
     {block name="js"}
 
     {/block}
