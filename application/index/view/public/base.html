@@ -38,10 +38,23 @@
                             href="{:url('message/message')}">留言</a></li>
                     <li class="layui-nav-item {eq name='nav_item' value='3'} layui-this {/eq} "><a
                             href="{:url('about/about')}">关于</a></li>
+                    <li class="layui-nav-item">
+                        {if $Think.session.user_info}
+                        <a href=""><img src="{$Think.session.user_info.img}" class="layui-nav-img">{$Think.session.user_info.name}</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="{:url('index/createArticle')}">发布文章</a></dd>
+                            <dd><a href="javascript:;">修改信息</a></dd>
+                            <dd><a href="{:url('user/loginOut')}">退了</a></dd>
+                        </dl>
+                        {else/}
+                        <a href="#" class="personal pull-left"><i class="layui-icon layui-icon-username"></i></a>
+                        <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                            <dd><a href="#" id='login'>登录</a></dd>
+                            <dd><a href="#" id='register'>注册</a></dd>
+                        </dl>
+                        {/if}
+                    </li>
                 </ul>
-                <a href="#" class="personal pull-left">
-                    <i class="layui-icon layui-icon-username"></i>
-                </a>
             </div>
             <div class="mobile-nav pull-right" id="mobile-nav">
                 <a href="javascript:;">
@@ -61,6 +74,7 @@
     {/block}
     {block name="footer"}
     <div class="footer">
+            <p>{$Think.session.user_info.img}</p>
         <p>
             <span>&copy; 2018</span>
             <span><a href="http://www.layui.com" target="_blank">layui.com</a></span>
@@ -99,9 +113,42 @@
             base: '/static/static/js/'
         }).use('blog');
 
-        layui.use(['jquery', 'laytpl'], function () {
+        layui.use(['jquery', 'laytpl', 'layer'], function () {
             var $   = layui.jquery
-            ,laytpl = layui.laytpl;
+            ,laytpl = layui.laytpl
+            ,layer  = layui.layer;
+
+            //start-------------------------------------------------------打开用户登录
+            $('#login').on('click', function(e){
+                layer.open({
+                    type:2
+                    ,title: false
+                    ,closeBtn:0
+                    ,shadeClose:true
+                    ,content:["{:url('user/login')}", 'no']
+                    ,area:['400px','300px']
+                });
+
+                return false;
+            })
+            $('#register').on('click', function(e){
+                layer.open({
+                    type:2
+                    ,title: false
+                    ,closeBtn:0
+                    ,shadeClose:true
+                    ,content:["{:url('user/register')}", 'no']
+                    ,area:['400px','400px']
+                });
+
+                return false;
+            })
+
+
+
+
+
+
 
             //start ------------------------------------------------------- 点赞事件处理
             $(".container").on('click', '.like', function () {
@@ -150,7 +197,7 @@
             $('#item-btn').on('click', function () {
                 var elemCont = $('#LAY-msg-content')
                     , the_type = elemCont.attr('the-type') // 'com', 'msg'
-                    , artid   = elemCont.attr('the-id') //评论需要 article_id    留言不需要 提交id
+                    , artid   = elemCont.attr('the-id') //评论需要 article_id    留言不需要提交id
                     , content = elemCont.val();
 
                 if (content.replace(/\s/g, '') == "") {
@@ -162,10 +209,10 @@
                 var data = {
                     type: the_type
                     , artid: artid             //
-                    , userid: 1               //当前已登录用户id
+                    , userid: "{$Think.session.user_info.id}"          //当前已登录用户id
 
-                    , username: '闲心'
-                    , avatar: '/static/static/images/info-img.png'
+                    , username: "{$Think.session.user_info.name}"
+                    , avatar: "{$Think.session.user_info.img}"
                     , praise: 0
                     , content: content
                 };

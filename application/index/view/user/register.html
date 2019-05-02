@@ -1,0 +1,100 @@
+{extend name="public:base"}
+{block name="header"}{/block}
+
+{block name="content"}
+<div id="login-form">
+    <h3 class="title">注册</h3>
+    <form action="" class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名：</label>
+            <div class="layui-input-block">
+                <input type="text" name="username" required lay-verify="required" placeholder="用户名" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+                <label class="layui-form-label">邮&nbsp;&nbsp;&nbsp;&nbsp;箱：</label>
+                <div class="layui-input-block">
+                    <input type="email" name="email" required lay-verify="required|email" placeholder="邮箱" autocomplete="off"
+                        class="layui-input">
+                </div>
+            </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密&nbsp;&nbsp;&nbsp;&nbsp;码：</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" required lay-verify="required" placeholder="密码" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+                <label class="layui-form-label">确认密码：</label>
+                <div class="layui-input-block">
+                    <input type="password" name="password_confirm" required lay-verify="required" placeholder="确认密码" autocomplete="off"
+                        class="layui-input">
+                </div>
+            </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">验证码：</label>
+            <div class="layui-input-block">
+                <input  style="width:150px;display: inline-block" type="text" name="verify" required lay-verify="required" placeholder="验证码" autocomplete="off"
+                    class="layui-input">
+                    <a href="#" id="verify"><img style="height:38px" src="{:url('user/verify')}" alt="captcha" /></a>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="register">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{/block}
+{block name="footer"}{/block}
+
+
+{block name="js"}
+<script>
+    layui.use(['layer','form'], function(){
+        var $ = layui.jquery
+            ,layer = layui.layer
+            ,form = layui.form;
+
+        //监听提交
+        form.on('submit(register)', function(data){
+            $.ajax({
+                type:'post'
+                ,url: "{:url('user/register')}"
+                ,data: data.field
+                ,dataType: 'json'
+                ,success: function(data){
+                    if(data.status == 1){   
+                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index); //再执行关闭 
+                        parent.location.reload(); //刷新页面
+                    }else{
+                        layer.open({
+                            title:'注册失败',
+                            content:data.msg,
+                            icon:5,
+                            anim:6
+                        });
+                    }
+                }
+            })
+            return false;
+        });
+        //验证码 更新
+        $('#verify').on('click', function(e){
+            $(this).children('img').attr('src', "{:url('user/verify')}");
+            return false;
+        })
+        //输入框获得焦点
+        $("input[name='username']").focus();
+    })
+
+
+</script>
+
+{/block}

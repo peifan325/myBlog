@@ -31,6 +31,10 @@ class Index extends Base
         return ['status'=>$status, 'count'=>$res['count'], 'data'=>$res['data']];
     }
 
+    //发布文章
+    public function createArticle()
+    {
+    }
     /**
      * 保存点赞
      * data: {type:"xx", id:'1'}
@@ -54,7 +58,7 @@ class Index extends Base
                 break;
         }
     }
-        /**
+    /**
      * 保存评论，留言
      * let data = {
      *               type:'com'
