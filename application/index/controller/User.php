@@ -15,7 +15,8 @@ class User extends Base
         if ($this->request->isAjax()) {
             $data = $this->request->param();
             $res = UserModel::login($data);
-            if ($res == 1) {
+            if (gettype($res) !== "string") {
+                session('user_info', ['id' => $res['id'], 'name'=>$res['username'],'img'=>$res['img'], 'role' => $res['role']]);
                 return ['status'=>1, 'msg'=>'登录成功!'];
             } else {
                 return ['status'=>0, 'msg'=>$res];

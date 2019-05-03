@@ -42,8 +42,7 @@ class User extends Model
             if ($result['status'] != 0) {
                 return '此账户被禁用！';
             }
-            session('user_info', ['id' => $result['id'], 'name'=>$result['username'],'img'=>$result['img'], 'role' => $result['role']]);
-            return 1;
+            return $result;
         } else {
             return '用户名或者密码错误！';
         }
