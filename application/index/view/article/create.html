@@ -14,7 +14,7 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label">分类：</label>
                     <div class="layui-input-block">
-                        <select name="cateId" lay-verify="required">
+                        <select name="cate_id" lay-verify="required">
                             <option value="1">HTML</option>
                             <option value="2">CSS</option>
                             <option value="3">JS</option>
@@ -46,9 +46,11 @@
 
 {block name="js"}
 <script>
-    layui.use(['layedit', 'form'], function () {
+    layui.use(['layedit', 'form', 'jquery','layer'], function () {
         var layedit = layui.layedit
-            ,form   = layui.form;
+            ,form   = layui.form
+            ,layer  = layui.layer
+            ,$      = layui.jquery;
 
 
             layedit.set({
@@ -64,10 +66,34 @@
 
         //监听提交
         form.on('submit(formDemo)', function(data){
-            
             let content = layedit.getContent(index)
             data.field['content'] = content;
-            console.log(data.field);
+            data.field['user_id'] = "{$Think.session.user_info.id}";
+            // console.log(data.field);
+            // return;
+            $.ajax({
+                type:'post'
+                ,url:"{:url('article/create')}"
+                ,data: data.field
+                ,dataType:'json'
+                ,success:function(data){
+                    if(data.status == 1){
+                        layer.msg(data.msg,{icon:6,time:"1000"}, function(){
+                            location.assign("{:url('index/index')}");
+                        }); 
+                    }else{
+                        layer.open({
+                            title:'发布失败！',
+                            content:data.msg,
+                            icon:5,
+                            anim:6
+                        });
+                    }
+                }
+            })
+
+
+
             return false;
         });
     });

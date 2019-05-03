@@ -39,7 +39,7 @@ class Article extends Model
      *         {}   //首次访问
      * return  []
      */
-
+    
     public function getArtList($data)
     {
         $curr  = isset($data['curr'])?$data['curr']:1;   //当前页
@@ -81,10 +81,11 @@ class Article extends Model
 
     public function getArt($id)
     {
-        return $this->withCount('comments')->get($id);
+        $art = $this->withCount('comments')->where('status', '0')->get($id);
+        return $art;
     }
 
-
+    //评论获取
     public function getComments($id)
     {
         $art = $this->getArt($id);
@@ -94,5 +95,16 @@ class Article extends Model
             });      //返回文章所有评论
         }
         return null;
+    }
+
+    public static function saveArt($data)
+    {
+        $validate = new \app\common\validate\ArticleVali();
+        if (!$validate->scene('save')->check($data)) {
+            return $validate->getError();
+        }
+
+        $result = self::create($data, true);
+        return 1;
     }
 }

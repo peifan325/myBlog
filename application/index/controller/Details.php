@@ -16,6 +16,7 @@ class Details extends Base
             return $this->error('并没有这篇文章！', 'index/index');
         }
 
+        $art->setInc('read'); //阅读+1
         $comments = $this->getComments();
         // \halt($comments);
         $this->view->assign('art', $art);                                   //文章

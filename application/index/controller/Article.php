@@ -10,10 +10,17 @@ class Article extends Base
     public function create()
     {
         if ($this->request->isAjax()) {
+            $data = $this->request->param();
+            $res = ArtModel::saveArt($data);
+            if ($res == 1) {
+                return ['status'=>1, 'msg'=>'发布成功!'];
+            } else {
+                return ['status'=>0, 'msg'=>$res];
+            }
         }
 
         $this->view->assign('title', '碎语闲言-发布文章');
-        $this->view->assign('nav_item', '3');                                 //菜单 激活
+        $this->view->assign('nav_item', '1');                                 //菜单 激活
         
         return $this->view->fetch('create');
     }

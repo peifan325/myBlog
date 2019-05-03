@@ -7,8 +7,7 @@
 						<div class="item-box">
 							<h3><a href="{:url('details/details', ['id'=>$art.id])}">{$art.title}</a></h3>
 							<h5>发布于：<span>{$art.create_time}</span></h5>
-							<p>{$art.content}</p>
-							<img src="/static/static/images/item.png" alt="">
+							<p>{$art.content|raw}</p>
 							<div class="count layui-clear">
 								<span class="pull-left">阅读 <em>{$art.read}</em></span>
 								<span class="pull-right like" the-id="{$art.id}" the-type="art"><i class="layui-icon layui-icon-praise"></i><em>{$art.like}</em></span>

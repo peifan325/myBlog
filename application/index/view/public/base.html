@@ -85,7 +85,12 @@
     {/block}
 
     {load href="/static/lib/layui/layui.js"}
-
+    <script>
+        layui.config({
+            base: '/static/static/js/'
+        }).use('blog');
+    </script>
+    
     {block name='publicJs'}
     <script id="LAY-msg-tpl" type="text/html">
         <!-- 评论列表 留言列表公用模板 -->
@@ -108,14 +113,7 @@
         </div>
     </script>
     
-
-
-
     <script>
-        layui.config({
-            base: '/static/static/js/'
-        }).use('blog');
-
         layui.use(['jquery', 'laytpl', 'layer'], function () {
             var $   = layui.jquery
             ,laytpl = layui.laytpl

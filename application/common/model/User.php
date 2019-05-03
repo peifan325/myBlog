@@ -6,8 +6,6 @@ use think\model\concern\SoftDelete;
 
 class User extends Model
 {
-    public static $i ="xx";
-
     use SoftDelete;
     protected $pk = 'id';
     protected $table = 'user';
