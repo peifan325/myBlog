@@ -24,7 +24,18 @@ class User extends Model
     {
         return $this->hasMany('Comment', 'user_id', 'id');
     }
+    public function getRoleAttr($value)
+    {
+        $res = ['0'=>'用户','1'=>'超级管理员'];
+        return $res[$value];
+    }
 
+
+    public static function getUserList()
+    {
+        $res = self::all();
+        return $res;
+    }
     public static function login($data)
     {
         $validate = new \app\common\validate\UserVali();

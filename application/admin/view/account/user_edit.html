@@ -1,0 +1,105 @@
+{extend name="public:base"}
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label for="username" class="layui-form-label">
+                    <span class="x-red">*</span>登录名
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="username" name="username" required="" lay-verify="required"
+                        autocomplete="off" class="layui-input" value={$user.username}>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>将会成为您唯一的登入名
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red">*</span>邮箱
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_email" name="email" required="" lay-verify="email" autocomplete="off"
+                        class="layui-input" value={$user.email}>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="role" value="1" title="超级管理员" {eq name="user.role" value="1" } checked
+                        {/eq}>
+                    <input type="radio" name="role" value="0" title="用户" {eq name="user.role" value="0" } checked {/eq}>
+                        </div> </div> <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="status" value="0" lay-skin="switch" lay-text="启用|禁用" {eq name="user.status"
+                            value="0" } checked {/eq}> </div> </div> <div class="layui-form-item">
+                        <label for="L_repass" class="layui-form-label">
+                        </label>
+                        <button class="layui-btn" lay-filter="add" lay-submit="">
+                            修改
+                        </button>
+                    </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    layui.use(['form', 'layer'], function () {
+        var $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+
+        //监听提交
+        form.on('submit(add)',
+            function (data) {
+                console.log(data.field)
+                let res = {};
+                data.field.username == "{$user.username}"?false:res['username']=data.field.username;
+                data.field.email == "{$user.email}"?false:res['email']=data.field.email;
+                data.field.role == "{$user.role}"?false:res['role']=data.field.role;
+                if(typeof(data.field.status) == "undefined"){
+                    data.field.status = '1';
+                }
+                data.field.status == "{$user.status}"?false:res['status']=data.field.status;
+                console.log(res)
+                if($.isEmptyObject(res)){
+                    layer.msg('数据没有修改',{time:1000});
+                }else{
+                    res['id'] = "{$user.id}";
+                    //发异步，把数据提交给php
+                    $.ajax({
+                        type:'post'
+                        ,url:"{:url('account/edit')}"
+                        ,data: res
+                        ,dataType: 'json'
+                        ,success: function(data){
+                            console.log(data);
+                            layer.alert("修改成功", {icon: 6},function () {
+                                //关闭当前frame
+                                x_admin_close();
+
+                                // 可以对父窗口进行刷新 
+                                x_admin_father_reload();
+                            });
+                        }
+                    })
+                }
+                return false;
+            });
+        function x_admin_close(){
+            //当你在iframe页面关闭自身时
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭   
+        }
+        function x_admin_father_reload(){
+            parent.location.reload();
+        }
+    });</script>
+{/block}
