@@ -6,25 +6,11 @@
     <div class="layui-col-md12">
       <div class="layui-card">
         <div class="layui-card-body ">
-          <form class="layui-form layui-col-space5">
-            <div class="layui-inline layui-show-xs-block">
-              <input class="layui-input" autocomplete="off" placeholder="开始日" name="start" id="start">
-            </div>
-            <div class="layui-inline layui-show-xs-block">
-              <input class="layui-input" autocomplete="off" placeholder="截止日" name="end" id="end">
-            </div>
-            <div class="layui-inline layui-show-xs-block">
-              <input type="text" name="username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-inline layui-show-xs-block">
-              <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
-            </div>
-          </form>
+
         </div>
         <div class="layui-card-header">
-          <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-          <button class="layui-btn" onclick="xadmin.open('添加用户','./admin-add.html',600,400)"><i
-              class="layui-icon"></i>添加</button>
+          <button class="layui-btn layui-btn-danger" onclick="undo()"><i class="layui-icon"></i>批量恢复</button>
+
           <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()"
           title="刷新">
           <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></a>
@@ -79,20 +65,12 @@
                 </td>
               </tr>
               {/volist}
-
             </tbody>
           </table>
         </div>
-        <div class="layui-card-body ">
-          <div class="page">
-            <div>
-              <a class="prev" href="">&lt;&lt;</a>
-              <a class="num" href="">1</a>
-              <span class="current">2</span>
-              <a class="num" href="">3</a>
-              <a class="num" href="">489</a>
-              <a class="next" href="">&gt;&gt;</a>
-            </div>
+        <div class="layui-card-body" style="text-align:center">
+          <div id="page">
+
           </div>
         </div>
       </div>
@@ -103,11 +81,28 @@
 
 {block name="js"}
 <script>
-  layui.use(['laydate', 'form'], function () {
+  layui.use(['laydate', 'form', 'laypage'], function () {
     var laydate = layui.laydate;
     var form = layui.form;
     var $    = layui.jquery;
+    var laypage = layui.laypage;
+    let limit = 5;
+    
 
+    //执行一个laypage实例
+    laypage.render({
+      elem: 'page' //注意，这里的 test1 是 ID，不用加 # 号
+      ,count: {$count} //数据总数，从服务端得到
+      ,limit: limit
+      ,jump:function(obj, first){
+        if(!first){
+          
+
+
+          
+        }
+      }
+    });
 
   });
        /*用户-停用*/
@@ -120,7 +115,6 @@
                   ,data:{id:id,status:'0'}
                   ,dataType:'json'
                   ,success: function(data){
-                    console.log(data);
                     $(obj).attr('title','停用')
                     $(obj).find('i').html('&#xe601;');
 
@@ -163,14 +157,15 @@
 
 
 
-  function delAll(argument) {
+  function undo(argument) {
 
-    var data = tableCheck.getData();
+    layer.confirm('确认要恢复吗？', function (index) {
+      $.get("{:url('account/undo')}",function(data){
+        layer.msg('全部成功', { icon: 1 });
+        location.reload();
+      })
+      
 
-    layer.confirm('确认要删除吗？' + data, function (index) {
-      //捉到所有被选中的，发异步进行删除
-      layer.msg('删除成功', { icon: 1 });
-      $(".layui-form-checked").not('.header').parents('tr').remove();
     });
   }
 </script>

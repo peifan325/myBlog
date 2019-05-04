@@ -33,7 +33,7 @@ class User extends Model
 
     public static function getUserList()
     {
-        $res = self::all();
+        $res = self::all()->toArray();
         return $res;
     }
     public static function login($data)

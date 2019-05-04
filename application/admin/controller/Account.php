@@ -14,7 +14,7 @@ class Account extends Controller
             $data = $this->request->param();
             $res = UserModel::login($data);
             if (gettype($res) !== "string") {
-                if ($res['role'] == '1') {//角色为管理员才能登录后台
+                if ($res['role'] == '超级管理员') {//角色为管理员才能登录后台
                     session('user_info', ['id' => $res['id'], 'name'=>$res['username'],'img'=>$res['img'], 'role' => $res['role']]);
                     return ['status'=>1, 'msg'=>'登录成功!'];
                 } else {
@@ -31,12 +31,17 @@ class Account extends Controller
     }
     public function logOut()
     {
-        Session.delete('user_info');
+        Session::delete('user_info');
         return $this->redirect('account/login');
     }
+    /***
+     *
+     */
     public function userList()
     {
         $userlist = UserModel::getUserList();
+
+        $this->view->assign('count', count($userlist));
         $this->view->assign('userlist', $userlist);
         return $this->view->fetch('user_list');
     }
@@ -71,10 +76,12 @@ class Account extends Controller
         $id = $this->request->param('id');
         UserModel::destroy($id);
     }
-    public function add()
+    public function undo()
     {
-        
-        return $this->view->fetch('user_add');
+        $users = UserModel::onlyTrashed()->select();
+        foreach ($users as $user) {
+            $user->restore();
+        }
     }
 
     public function verify()
